@@ -99,7 +99,7 @@ class StoryList {
       createdAt,
     } = res.data.story;
 
-    return new Story({
+    newStory = new Story({
       storyId: storyId,
       title: storyTitle,
       author: storyAuthor,
@@ -107,6 +107,8 @@ class StoryList {
       username: username,
       createdAt: createdAt,
     });
+
+    user.ownStories.push(newStory);
   }
 }
 
@@ -225,9 +227,10 @@ class User {
    * - addFav
    * - removeFav
    */
-  async addFav(user, storyId) {
+  async addFav(user, story) {
+    this.favorites.push(story);
     const { loginToken, username } = user;
-
+    const { storyId } = story;
     // Sends Favorite to API
     await axios({
       url: `${BASE_URL}/users/${username}/favorites/${storyId}`,
@@ -236,7 +239,25 @@ class User {
         token: loginToken,
       },
     });
-    
+  }
+
+  async removeFav(user, story) {
+    this.favorites = this.favorites.filter((s) => s.storyId !== story.storyId);
+    const { loginToken, username } = user;
+    const { storyId } = story;
+    // Sends Favorite to API
+    await axios({
+      url: `${BASE_URL}/users/${username}/favorites/${storyId}`,
+      method: "DELETE",
+      data: {
+        token: loginToken,
+      },
+    });
+  }
+
+  /** Return true/false if given Story instance is a favorite of this user. */
+
+  isFavorite(story) {
+    return this.favorites.some((s) => s.storyId === story.storyId);
   }
 }
-

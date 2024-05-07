@@ -65,5 +65,6 @@ function updateNavOnLogin() {
   $navUserProfile.text(`${currentUser.username}`).show();
   $mainNavLinks.show();
   $navLogOut.show();
+  navAllStories()
   $storiesContainer.show();
 }

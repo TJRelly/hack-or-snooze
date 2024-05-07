@@ -9,6 +9,8 @@ const $storiesContainer = $(".stories-container");
 const $allStoriesList = $("#all-stories-list");
 const $favoritedStoriesList = $("#favorite-stories-list");
 const $myStoriesList = $("#my-stories-list");
+// selector that finds all three story lists
+const $storiesLists = $(".stories-list");
 
 const $loginForm = $("#login-form");
 const $signupForm = $("#signup-form");
