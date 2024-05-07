@@ -30,23 +30,36 @@ function getStarHTML(story, user) {
       </span>`;
 }
 
-function generateStoryMarkup(story) {
+function generateStoryMarkup(story, showDeleteBtn = false) {
   // console.debug("generateStoryMarkup", story);
+  const hostName = story.getHostName();
 
+  // if a user is logged in, show favorite/not-favorite star
   const showStar = Boolean(currentUser);
 
-  const hostName = story.getHostName();
   return $(`
       <li id="${story.storyId}">
+        <div>
+        ${showDeleteBtn ? getDeleteBtnHTML() : ""}
         ${showStar ? getStarHTML(story, currentUser) : ""}
         <a href="${story.url}" target="a_blank" class="story-link">
           ${story.title}
         </a>
         <small class="story-hostname">(${hostName})</small>
-        <small class="story-author">by ${story.author}</small>
-        <small class="story-user">posted by ${story.username}</small>
+        <div class="story-author">by ${story.author}</div>
+        <div class="story-user">posted by ${story.username}</div>
+        </div>
       </li>
     `);
+}
+
+/** Make delete button HTML for story */
+
+function getDeleteBtnHTML() {
+  return `
+      <span class="trash-can">
+        <i class="fas fa-trash-alt"></i>
+      </span>`;
 }
 
 /** Gets list of stories from server, generates their HTML, and puts on page. */
@@ -89,7 +102,7 @@ function putMyStoriesOnPage() {
 
   // loop through all of my stories and generate HTML for them
   for (let story of currentUser.ownStories) {
-    const $story = generateStoryMarkup(story);
+    const $story = generateStoryMarkup(story, true);
     $myStoriesList.append($story);
   }
 
@@ -120,3 +133,19 @@ async function toggleStoryFavorite(evt) {
 }
 
 $storiesLists.on("click", ".star", toggleStoryFavorite);
+
+/** Handle deleting a story. */
+
+async function deleteStory(evt) {
+  console.debug("deleteStory");
+
+  const $closestLi = $(evt.target).closest("li");
+  const storyId = $closestLi.attr("id");
+
+  await storyList.removeStory(currentUser, storyId);
+
+  // re-generate story list
+  putMyStoriesOnPage();
+}
+
+$myStoriesList.on("click", ".trash-can", deleteStory);
